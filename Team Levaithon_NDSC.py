@@ -1,9 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[1]:
-
-
 import pandas as pd
 import numpy as np
 from keras.preprocessing.text import Tokenizer 
@@ -15,16 +12,10 @@ from keras.layers import LSTM
 from keras.layers.embeddings import Embedding
 
 
-# In[2]:
-
-
 # define constant variables 
 max_words = 30
 top_words = 150000
 embedding_vector_length = 32 
-
-
-# In[3]:
 
 
 # read both train and test datasets
@@ -34,9 +25,6 @@ def read_csv_data():
     return (df_train, df_test)
 
 df_train,df_test = read_csv_data()
-
-
-# In[4]:
 
 
 # drop category of train data before training 
@@ -50,18 +38,11 @@ def sieveCategories(df_train):
 df_temp, df_train_category = sieveCategories(df_train)
 
 
-# In[5]:
-
-
 # get length of training data. Needed for deconcatenation 
 def getLenCsv(df_train, df_test):
     return (len(df_train.index), len(df_test.index))
 
 len_train, len_test = getLenCsv(df_train, df_test)
-
-
-# In[6]:
-
 
 # concatenate train and test set for tokenization 
 def concatenate_and_tokenize(df_temp,df_test):
@@ -78,24 +59,6 @@ def concatenate_and_tokenize(df_temp,df_test):
 
 result = concatenate_and_tokenize(df_temp, df_test)
 
-
-# In[ ]:
-
-
-
-
-
-# In[7]:
-
-
-#print(result.head())
-#print(result.tail())
-#print(result.iloc[0])
-#prin)t(len(result.index))
-#print(result['title'][0])
-#print(result['title'][172401])
-#print(result.tail())
-
 # Deconcatenate train and test set for predictions and training
 def deconcatenate_train_and_test(result):
     df_train_deconcat = result.iloc[:len_train, :]
@@ -107,7 +70,7 @@ def deconcatenate_train_and_test(result):
 df_train_deconcat, df_test_deconcat = deconcatenate_train_and_test(result)
 
 
-# In[8]:
+
 
 
 # add category from train csv back to train data 
@@ -117,15 +80,6 @@ def add_back_categories(df_train_deconcat, df_train_category):
     print(df_test_deconcat.head())
     
 add_back_categories(df_train_deconcat, df_train_category)
-
-
-# In[ ]:
-
-
-
-
-
-# In[10]:
 
 
 # function that makes model 
@@ -151,12 +105,8 @@ def make_model(offset,num_output,num_epochs,image_path):
     model.summary()
     model.fit(X_train,y_output, epochs = num_epochs, batch_size = 64)
     return model
-    
-
-
-# In[11]:
-
-
+   
+ 
 # make_model(offset, num_output, epochs)
 # can change num of epochs i was just testing 
 def make_models():
@@ -168,15 +118,6 @@ def make_models():
     return model_dict
 
 final_dict = make_models()
-
-
-# In[ ]:
-
-
-
-
-
-# In[24]:
 
 
 def make_predict_and_save(model_dict,df_test_deconcat):
@@ -203,22 +144,4 @@ def make_predict_and_save(model_dict,df_test_deconcat):
     pd.DataFrame(predictions, columns = ['itemid', 'predictions']).to_csv('predictions.csv') # make into csv_file after everything is done 
 
 make_predict_and_save(final_dict, df_test_deconcat)
-
-
-# In[69]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
 
