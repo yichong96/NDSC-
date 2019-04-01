@@ -31,7 +31,7 @@ df_train,df_test = read_csv_data()
 def sieveCategories(df_train):
     # sieve categories out 
     df_train_category = df_train['Category']
-    print(df_train_category.head())
+    #print(df_train_category.head())
     df_temp = df_train.drop(columns = "Category")
     return (df_temp,df_train_category)
 
@@ -52,9 +52,9 @@ def concatenate_and_tokenize(df_temp,df_test):
     titles = result['title']
     tokenizer.fit_on_texts(titles)
     result['title'] = tokenizer.texts_to_sequences(titles)
-    print(len(result.index))
-    print(result['title'][0])
-    print(result.tail())
+    #print(len(result.index))
+    #print(result['title'][0])
+    #print(result.tail())
     return result 
 
 result = concatenate_and_tokenize(df_temp, df_test)
@@ -62,9 +62,9 @@ result = concatenate_and_tokenize(df_temp, df_test)
 # Deconcatenate train and test set for predictions and training
 def deconcatenate_train_and_test(result):
     df_train_deconcat = result.iloc[:len_train, :]
-    print(df_train_deconcat.head())
+    #print(df_train_deconcat.head())
     df_test_deconcat = result.iloc[len_train:, :]
-    print(df_test_deconcat.head())
+    #print(df_test_deconcat.head())
     return (df_train_deconcat, df_test_deconcat)
 
 df_train_deconcat, df_test_deconcat = deconcatenate_train_and_test(result)
@@ -76,8 +76,8 @@ df_train_deconcat, df_test_deconcat = deconcatenate_train_and_test(result)
 # add category from train csv back to train data 
 def add_back_categories(df_train_deconcat, df_train_category):
     df_train_deconcat['Category'] = df_train_category
-    print(df_train_deconcat.head())
-    print(df_test_deconcat.head())
+    #print(df_train_deconcat.head())
+    #print(df_test_deconcat.head())
     
 add_back_categories(df_train_deconcat, df_train_category)
 
@@ -85,8 +85,8 @@ add_back_categories(df_train_deconcat, df_train_category)
 # function that makes model 
 def make_model(offset,num_output,num_epochs,image_path):
     mobile_data = df_train_deconcat.loc[df_train_deconcat['image_path'].str.contains(image_path)] # train for mobile 
-    print(mobile_data.size)
-    print(mobile_data.head())
+    #print(mobile_data.size)
+    #print(mobile_data.head())
     y = mobile_data['Category'] # get mobile data category 
     y = np.array(y.values)   # make into numpy array 
     y = y - offset           # find offset 
@@ -96,7 +96,7 @@ def make_model(offset,num_output,num_epochs,image_path):
     #print(y_output)
     X_train = mobile_data['title'].values
     X_train = sequence.pad_sequences(X_train,maxlen = max_words)
-    print(X_train)
+    #print(X_train)
     model = Sequential()
     model.add(Embedding(top_words, embedding_vector_length, input_length = max_words))
     model.add(LSTM(100))
@@ -124,11 +124,11 @@ def make_predict_and_save(model_dict,df_test_deconcat):
     #model_dict = { "mobile_image": model_mobile, "model_beauty": None, "model_fashion": None }  
     # make predictions for each of the model 
     predictions = np.empty((0,2), int)
-    print(predictions)
+    #print(predictions)
     offset_dict = {"mobile_image": 31, "fashion_image": 17, "beauty_image": 0}
     X_test = df_test_deconcat['title'].values
     X_test = sequence.pad_sequences(X_test,maxlen = max_words)
-    print(X_test)
+    #print(X_test)
     for (i,row) in df_test_deconcat.iterrows():
         #print(row)
         image = df_test_deconcat['image_path'][i].split('/')[0]  # get the image path before "/"" 
@@ -140,7 +140,7 @@ def make_predict_and_save(model_dict,df_test_deconcat):
         category = index + offset_dict[image]  # get the offset corresponding to the different image sets 
         predictions = np.append(predictions, np.array([[row['itemid'],category]]), axis = 0) # make a prediction and append that to the numpy array
         #print(predictions)
-    print(predictions)
+    #print(predictions)
     pd.DataFrame(predictions, columns = ['itemid', 'predictions']).to_csv('predictions.csv') # make into csv_file after everything is done 
 
 make_predict_and_save(final_dict, df_test_deconcat)
